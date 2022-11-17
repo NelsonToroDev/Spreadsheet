@@ -11,6 +11,20 @@ const getInitialState = (columns, rows) => {
   return cells
 }
 
+const computeValue = (value, constants) => {
+  if (!value.startsWith('=')) return value
+
+  const valueToUse = value.substring(1)
+  let computedValue
+  try {
+    // eslint-disable-next-line no-eval
+    computedValue = eval(generateCode(valueToUse, constants))
+  } catch (e) {
+    computedValue = `ERROR ${e.message}`
+  }
+  return computedValue
+}
+
 const generateCode = (value, constants) => {
   return `(() => {
     ${constants}
@@ -40,14 +54,7 @@ const reducer = (state, action) => {
     const cell = cells[x][y]
 
     const constants = generateCellsConstants(cells)
-
-    let computedValue
-    try {
-      // eslint-disable-next-line no-eval
-      computedValue = eval(generateCode(value, constants))
-    } catch (e) {
-      computedValue = `ERROR ${e.message}`
-    }
+    const computedValue = computeValue(value, constants)
 
     cell.value = value
     cell.computedValue = computedValue
