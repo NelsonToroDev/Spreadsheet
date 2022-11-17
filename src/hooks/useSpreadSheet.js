@@ -12,7 +12,7 @@ const getInitialState = (columns, rows) => {
 }
 
 const computeValue = (value, constants) => {
-  if (!value.startsWith('=')) return value
+  if (!value.startsWith?.('=')) return value
 
   const valueToUse = value.substring(1)
   let computedValue
@@ -23,6 +23,15 @@ const computeValue = (value, constants) => {
     computedValue = `ERROR ${e.message}`
   }
   return computedValue
+}
+
+const computeAllCell = (cells, constants) => {
+  cells.forEach((rows, x) => {
+    rows.forEach((cell, y) => {
+      const computedValue = computeValue(cell.value, constants)
+      cell.computedValue = computedValue
+    })
+  })
 }
 
 const generateCode = (value, constants) => {
@@ -58,6 +67,8 @@ const reducer = (state, action) => {
 
     cell.value = value
     cell.computedValue = computedValue
+
+    computeAllCell(cells, generateCellsConstants(cells))
 
     return { cells }
   }
