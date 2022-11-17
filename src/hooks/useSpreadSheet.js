@@ -1,4 +1,5 @@
 import { useReducer } from 'react'
+import { getColumn } from '../utils'
 
 const getInitialState = (columns, rows) => {
   const cells = {
@@ -10,10 +11,25 @@ const getInitialState = (columns, rows) => {
   return cells
 }
 
-const generateCode = (value) => {
+const generateCode = (value, constants) => {
   return `(() => {
+    ${constants}
     return ${value};
   })()`
+}
+
+const generateCellsConstants = (cells) => {
+  return cells
+    .map((rows, x) => {
+      return rows
+        .map((cell, y) => {
+          const letter = getColumn(x)
+          const cellId = `${letter}${y}` // A5 B7
+          return `const ${cellId} = ${cell.computedValue};`
+        })
+        .join('\n')
+    })
+    .join('\n')
 }
 
 const reducer = (state, action) => {
@@ -23,10 +39,12 @@ const reducer = (state, action) => {
     const { x, y, value } = payload
     const cell = cells[x][y]
 
+    const constants = generateCellsConstants(cells)
+
     let computedValue
     try {
       // eslint-disable-next-line no-eval
-      computedValue = eval(generateCode(value))
+      computedValue = eval(generateCode(value, constants))
     } catch (e) {
       computedValue = `ERROR ${e.message}`
     }

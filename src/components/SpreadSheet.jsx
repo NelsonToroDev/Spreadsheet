@@ -1,10 +1,8 @@
 import { useState } from 'react'
 import { useSpreadSheet } from '../hooks/useSpreadSheet'
-
-const FIRST_CHAR_CODE = 65
+import { getColumn } from '../utils'
 
 const range = (length) => Array.from({ length }, (_, i) => i)
-const getColumn = (i) => String.fromCharCode(FIRST_CHAR_CODE + i)
 
 export function SpreadSheet ({ rows, columns }) {
   const { cells, updateCell } = useSpreadSheet({ rows, columns })
